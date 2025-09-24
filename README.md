@@ -31,6 +31,16 @@ This repository allows you to launch the entire InfraGest platform using Docker 
    docker-compose up --build
    ```
 
+## Architecture Diagrams
+
+Below you will find the main architecture diagrams for InfraGest. These files are included in this repository for reference:
+
+- **Entity Relationship Diagram:**  
+  ![ER Diagram](diagrama-er.drawio.png)
+
+- **Microservices Architecture Diagram:**  
+  ![Microservices Architecture](arquitectura-microservicios.drawio.png)
+
 ## Expected Structure
 
 ```
@@ -38,6 +48,8 @@ infra-deploy/
   ├── docker-compose.yml
   ├── README.md
   ├── initdb/
+  ├── diagrama-er.drawio.png
+  ├── arquitectura-microservicios.drawio.png
   ├── infra-config-server/
   ├── infra-devices-service/
   ├── infra-orders-service/
