@@ -16,6 +16,7 @@ This repository allows you to launch the entire InfraGest platform using Docker 
    git clone https://github.com/bunnystring/infra-devices-service.git infra-devices-service
    git clone https://github.com/bunnystring/infra-orders-service.git infra-orders-service
    git clone https://github.com/bunnystring/infra-groups-service.git infra-groups-service
+   git clone https://github.com/bunnystring/infra-eureka-server.git infra-eureka-server
    git clone https://github.com/bunnystring/infra-notifications-service.git infra-notifications-service
    git clone https://github.com/bunnystring/infra-api-gateway.git infra-api-gateway
    git clone https://github.com/bunnystring/infra-frontend.git infra-frontend
