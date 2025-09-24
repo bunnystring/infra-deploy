@@ -1,0 +1,160 @@
+version: "3.8"
+
+services:
+  # --- Databases ---
+  infra-db:
+    image: mariadb:11
+    container_name: infra-db
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: rootpass
+    volumes:
+      - mariadb_data:/var/lib/mysql
+      - ./initdb:/docker-entrypoint-initdb.d # Scripts de inicialización de bases de datos
+    ports:
+      - "3306:3306"
+    networks:
+      - backend
+
+  # --- Storage services ---
+  minio:
+    image: minio/minio
+    container_name: minio
+    ports:
+      - "9000:9000"
+    environment:
+      MINIO_ROOT_USER: minioadmin
+      MINIO_ROOT_PASSWORD: minioadmin
+    command: server /data
+    volumes:
+      - minio_data:/data
+    networks:
+      - backend
+
+  # --- Eureka Server (discovery service) ---
+  infra-eureka-server:
+    build: ./infra-eureka-server
+    container_name: infra-eureka-server
+    ports:
+      - "8761:8761"
+    networks:
+      - backend
+
+  # --- Microservices ---
+  infra-devices-service:
+    build: ./infra-devices-service
+    container_name: infra-devices-service
+    depends_on:
+      - infra-db
+      - infra-eureka-server
+      - infra-config-server
+    environment:
+      DB_HOST: infra-db
+      DB_PORT: 3306
+      DB_NAME: devices_db
+      DB_USER: devices_user
+      DB_PASS: devices_pass
+      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://infra-eureka-server:8761/eureka/
+      SPRING_CONFIG_IMPORT: optional:configserver:http://infra-config-server:8888
+    networks:
+      - backend
+
+  infra-orders-service:
+    build: ./infra-orders-service
+    container_name: infra-orders-service
+    depends_on:
+      - infra-db
+      - infra-eureka-server
+      - infra-config-server
+    environment:
+      DB_HOST: infra-db
+      DB_PORT: 3306
+      DB_NAME: orders_db
+      DB_USER: orders_user
+      DB_PASS: orders_pass
+      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://infra-eureka-server:8761/eureka/
+      SPRING_CONFIG_IMPORT: optional:configserver:http://infra-config-server:8888
+    networks:
+      - backend
+
+  infra-groups-service:
+    build: ./infra-groups-service
+    container_name: infra-groups-service
+    depends_on:
+      - infra-db
+      - infra-eureka-server
+      - infra-config-server
+    environment:
+      DB_HOST: infra-db
+      DB_PORT: 3306
+      DB_NAME: groups_db
+      DB_USER: groups_user
+      DB_PASS: groups_pass
+      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://infra-eureka-server:8761/eureka/
+      SPRING_CONFIG_IMPORT: optional:configserver:http://infra-config-server:8888
+    networks:
+      - backend
+
+  infra-notifications-service:
+    build: ./infra-notifications-service
+    container_name: infra-notifications-service
+    depends_on:
+      - infra-db
+      - infra-eureka-server
+      - infra-config-server
+    environment:
+      DB_HOST: infra-db
+      DB_PORT: 3306
+      DB_NAME: notifications_db
+      DB_USER: notifications_user
+      DB_PASS: notifications_pass
+      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://infra-eureka-server:8761/eureka/
+      SPRING_CONFIG_IMPORT: optional:configserver:http://infra-config-server:8888
+    networks:
+      - backend
+
+  # --- Config Server ---
+  infra-config-server:
+    build: ./infra-config-server
+    container_name: infra-config-server
+    ports:
+      - "8888:8888"
+    networks:
+      - backend
+
+  # --- API Gateway ---
+  infra-api-gateway:
+    build: ./infra-api-gateway
+    container_name: infra-api-gateway
+    ports:
+      - "8080:8080"
+    depends_on:
+      - infra-devices-service
+      - infra-orders-service
+      - infra-groups-service
+      - infra-notifications-service
+      - infra-eureka-server
+    environment:
+      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://infra-eureka-server:8761/eureka/
+    networks:
+      - backend
+      - frontend
+
+  # --- Frontend ---
+  infra-frontend:
+    build: ./infra-frontend
+    container_name: infra-frontend
+    ports:
+      - "4200:80"
+    networks:
+      - frontend
+
+# --- Volumes ---
+volumes:
+  mariadb_data:
+  minio_data:
+
+# --- Networks ---
+networks:
+  backend:
+  frontend:
