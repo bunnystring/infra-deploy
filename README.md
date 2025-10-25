@@ -21,6 +21,7 @@ git clone https://github.com/bunnystring/infra-devices-service.git infra-devices
 git clone https://github.com/bunnystring/infra-orders-service.git infra-orders-service
 git clone https://github.com/bunnystring/infra-groups-service.git infra-groups-service
 git clone https://github.com/bunnystring/infra-notifications-service.git infra-notifications-service
+git clone https://github.com/bunnystring/infra-auth-service.git infra-auth-service
 git clone https://github.com/bunnystring/infra-api-gateway.git infra-api-gateway
 git clone https://github.com/bunnystring/infra-eureka-server.git infra-eureka-server
 git clone https://github.com/bunnystring/infra-frontend.git infra-frontend
@@ -40,6 +41,7 @@ CREATE DATABASE IF NOT EXISTS devices_db;
 CREATE DATABASE IF NOT EXISTS orders_db;
 CREATE DATABASE IF NOT EXISTS groups_db;
 CREATE DATABASE IF NOT EXISTS notifications_db;
+CREATE DATABASE IF NOT EXISTS auth_db;
 
 -- Usuario único para cualquier host
 CREATE USER IF NOT EXISTS 'superuser'@'%' IDENTIFIED BY 'superpass';
@@ -54,7 +56,7 @@ GRANT ALL PRIVILEGES ON *.* TO 'superuser'@'localhost';
 FLUSH PRIVILEGES;
 ```
 
-Con este usuario (`superuser`), podrás acceder y administrar todas las bases de datos desde una sola conexión en DBeaver o cualquier otro cliente.
+Con este usuario (`superuser`), podrás acceder y administrar todas las bases de datos (incluyendo `auth_db`) desde una sola conexión en DBeaver o cualquier otro cliente.
 
 ---
 
@@ -94,6 +96,7 @@ infra-deploy/
   ├── infra-orders-service/
   ├── infra-groups-service/
   ├── infra-notifications-service/
+  ├── infra-auth-service/
   ├── infra-api-gateway/
   ├── infra-eureka-server/
   └── infra-frontend/

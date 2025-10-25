@@ -122,6 +122,25 @@ services:
     networks:
       - backend
 
+    # --- Auth Service ---
+  infra-auth-service:
+    build: ./infra-auth-service
+    container_name: infra-auth-service
+    depends_on:
+      - infra-db
+      - infra-eureka-server
+      - infra-config-server
+    environment:
+      DB_HOST: infra-db
+      DB_PORT: 3306
+      DB_NAME: auth_db
+      DB_USER: auth_user
+      DB_PASS: auth_pass
+      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://infra-eureka-server:8761/eureka/
+      SPRING_CONFIG_IMPORT: optional:configserver:http://infra-config-server:8888
+    networks:
+      - backend
+
   # --- API Gateway ---
   infra-api-gateway:
     build: ./infra-api-gateway
