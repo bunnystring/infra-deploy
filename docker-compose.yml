@@ -154,7 +154,8 @@ services:
       - infra-notifications-service
       - infra-eureka-server
     environment:
-      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://infra-eureka-server:8761/eureka/
+      - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://infra-eureka-server:8761/eureka/ 
+      - SPRING_PROFILES_ACTIVE=prod
     networks:
       - backend
       - frontend
