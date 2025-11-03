@@ -7,7 +7,7 @@ services:
     container_name: infra-db
     restart: always
     environment:
-      MYSQL_ROOT_PASSWORD: rootpass
+      - MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD}
     volumes:
       - mariadb_data:/var/lib/mysql
       - ./initdb:/docker-entrypoint-initdb.d # Scripts de inicialización de bases de datos
@@ -23,8 +23,8 @@ services:
     ports:
       - "9000:9000"
     environment:
-      MINIO_ROOT_USER: minioadmin
-      MINIO_ROOT_PASSWORD: minioadmin
+      - MINIO_ROOT_USER=${MINIO_ROOT_USER}
+      - MINIO_ROOT_PASSWORD=${MINIO_ROOT_PASSWORD}
     command: server /data
     volumes:
       - minio_data:/data
@@ -49,13 +49,13 @@ services:
       - infra-eureka-server
       - infra-config-server
     environment:
-      DB_HOST: infra-db
-      DB_PORT: 3306
-      DB_NAME: devices_db
-      DB_USER: devices_user
-      DB_PASS: devices_pass
-      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://infra-eureka-server:8761/eureka/
-      SPRING_CONFIG_IMPORT: optional:configserver:http://infra-config-server:8888
+      - DB_HOST=infra-db
+      - DB_PORT=3306
+      - DB_NAME=devices_db
+      - DB_USER=devices_user
+      - DB_PASS=${DEVICES_DB_PASS}
+      - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://infra-eureka-server:8761/eureka/
+      - SPRING_CONFIG_IMPORT=optional:configserver:http://infra-config-server:8888
     networks:
       - backend
 
@@ -67,13 +67,13 @@ services:
       - infra-eureka-server
       - infra-config-server
     environment:
-      DB_HOST: infra-db
-      DB_PORT: 3306
-      DB_NAME: orders_db
-      DB_USER: orders_user
-      DB_PASS: orders_pass
-      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://infra-eureka-server:8761/eureka/
-      SPRING_CONFIG_IMPORT: optional:configserver:http://infra-config-server:8888
+      - DB_HOST=infra-db
+      - DB_PORT=3306
+      - DB_NAME=orders_db
+      - DB_USER=orders_user
+      - DB_PASS=${ORDERS_DB_PASS}
+      - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://infra-eureka-server:8761/eureka/
+      - SPRING_CONFIG_IMPORT=optional:configserver:http://infra-config-server:8888
     networks:
       - backend
 
@@ -85,13 +85,13 @@ services:
       - infra-eureka-server
       - infra-config-server
     environment:
-      DB_HOST: infra-db
-      DB_PORT: 3306
-      DB_NAME: groups_db
-      DB_USER: groups_user
-      DB_PASS: groups_pass
-      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://infra-eureka-server:8761/eureka/
-      SPRING_CONFIG_IMPORT: optional:configserver:http://infra-config-server:8888
+      - DB_HOST=infra-db
+      - DB_PORT=3306
+      - DB_NAME=groups_db
+      - DB_USER=groups_user
+      - DB_PASS=${GROUPS_DB_PASS}
+      - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://infra-eureka-server:8761/eureka/
+      - SPRING_CONFIG_IMPORT=optional:configserver:http://infra-config-server:8888
     networks:
       - backend
 
@@ -103,13 +103,13 @@ services:
       - infra-eureka-server
       - infra-config-server
     environment:
-      DB_HOST: infra-db
-      DB_PORT: 3306
-      DB_NAME: notifications_db
-      DB_USER: notifications_user
-      DB_PASS: notifications_pass
-      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://infra-eureka-server:8761/eureka/
-      SPRING_CONFIG_IMPORT: optional:configserver:http://infra-config-server:8888
+      - DB_HOST=infra-db
+      - DB_PORT=3306
+      - DB_NAME=notifications_db
+      - DB_USER=notifications_user
+      - DB_PASS=${NOTIFICATIONS_DB_PASS}
+      - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://infra-eureka-server:8761/eureka/
+      - SPRING_CONFIG_IMPORT=optional:configserver:http://infra-config-server:8888
     networks:
       - backend
 
@@ -119,10 +119,13 @@ services:
     container_name: infra-config-server
     ports:
       - "8888:8888"
+    environment:
+      - GIT_USERNAME=${GIT_USERNAME}
+      - GIT_TOKEN=${GIT_TOKEN}
     networks:
       - backend
 
-    # --- Auth Service ---
+  # --- Auth Service ---
   infra-auth-service:
     build: ./infra-auth-service
     container_name: infra-auth-service
@@ -131,13 +134,13 @@ services:
       - infra-eureka-server
       - infra-config-server
     environment:
-      DB_HOST: infra-db
-      DB_PORT: 3306
-      DB_NAME: auth_db
-      DB_USER: auth_user
-      DB_PASS: auth_pass
-      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://infra-eureka-server:8761/eureka/
-      SPRING_CONFIG_IMPORT: optional:configserver:http://infra-config-server:8888
+      - DB_HOST=infra-db
+      - DB_PORT=3306
+      - DB_NAME=auth_db
+      - DB_USER=auth_user
+      - DB_PASS=${AUTH_DB_PASS}
+      - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://infra-eureka-server:8761/eureka/
+      - SPRING_CONFIG_IMPORT=optional:configserver:http://infra-config-server:8888
     networks:
       - backend
 
@@ -154,8 +157,9 @@ services:
       - infra-notifications-service
       - infra-eureka-server
     environment:
-      - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://infra-eureka-server:8761/eureka/ 
+      - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://infra-eureka-server:8761/eureka/
       - SPRING_PROFILES_ACTIVE=prod
+      - SPRING_CONFIG_IMPORT=optional:configserver:http://infra-config-server:8888
     networks:
       - backend
       - frontend
