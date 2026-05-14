@@ -1,5 +1,3 @@
-version: "3.8"
-
 services:
   # --- Databases ---
   infra-db:
@@ -12,7 +10,7 @@ services:
       - mariadb_data:/var/lib/mysql
       - ./initdb:/docker-entrypoint-initdb.d # Scripts de inicialización de bases de datos
     ports:
-      - "3306:3306"
+      - "3307:3306"
     networks:
       - backend
 
@@ -113,6 +111,19 @@ services:
     networks:
       - backend
 
+    # --- RabbitMQ ---
+  rabbitmq:
+    image: rabbitmq:management
+    container_name: rabbitmq
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    environment:
+      - RABBITMQ_DEFAULT_USER=guest
+      - RABBITMQ_DEFAULT_PASS=guest
+    networks:
+      - backend
+
   # --- Config Server ---
   infra-config-server:
     build: ./infra-config-server
@@ -122,6 +133,7 @@ services:
     environment:
       - GIT_USERNAME=${GIT_USERNAME}
       - GIT_TOKEN=${GIT_TOKEN}
+      - SPRING_PROFILES_ACTIVE=prod
     networks:
       - backend
 
@@ -141,6 +153,7 @@ services:
       - DB_PASS=${AUTH_DB_PASS}
       - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://infra-eureka-server:8761/eureka/
       - SPRING_CONFIG_IMPORT=optional:configserver:http://infra-config-server:8888
+      - SPRING_PROFILES_ACTIVE=prod
     networks:
       - backend
 
@@ -149,7 +162,7 @@ services:
     build: ./infra-api-gateway
     container_name: infra-api-gateway
     ports:
-      - "8080:8080"
+      - "0.0.0.0:8080:8080"
     depends_on:
       - infra-devices-service
       - infra-orders-service
@@ -158,18 +171,22 @@ services:
       - infra-eureka-server
     environment:
       - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://infra-eureka-server:8761/eureka/
-      - SPRING_PROFILES_ACTIVE=prod
       - SPRING_CONFIG_IMPORT=optional:configserver:http://infra-config-server:8888
+      - SPRING_PROFILES_ACTIVE=prod
+      - SERVER_ADDRESS=0.0.0.0
     networks:
       - backend
       - frontend
 
-  # --- Frontend ---
+   # --- Frontend ---
   infra-frontend:
     build: ./infra-frontend
     container_name: infra-frontend
     ports:
-      - "4200:80"
+      - "4200:4000"
+    environment:
+      - NODE_ENV=production
+      - NG_ALLOWED_HOSTS=localhost,127.0.0.1
     networks:
       - frontend
 
